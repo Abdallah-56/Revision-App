@@ -14,8 +14,8 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
-        <PasswordBox x:Name="PasswordTextbox" HorizontalAlignment="Center" Height="28" Margin="0,322,0,0" VerticalAlignment="Top" Width="268" BorderBrush="#FFC242F3"/>
-        <TextBox x:Name="UsernameTextBox" TextWrapping="Wrap" Margin="366,237,366,436" BorderBrush="#FFC242F3"/>
+        <PasswordBox x:Name="PasswordTextbox" HorizontalAlignment="Center" Height="28" Margin="0,322,0,0" VerticalAlignment="Top" Width="268" BorderBrush="#FFC242F3" FontFamily="Arial" FontSize="18"/>
+        <TextBox x:Name="UsernameTextBox" TextWrapping="Wrap" Margin="366,237,366,436" BorderBrush="#FFC242F3" FontFamily="Arial" FontSize="18"/>
         <Button x:Name="SignInButton" Content="Sign In" HorizontalAlignment="Center" Height="64" Margin="0,409,0,0" VerticalAlignment="Top" Width="268" BorderBrush="#FFC242F3" Foreground="#FFC242F3" BorderThickness="4,4,4,4" Background="White" FontSize="48" FontFamily="Arial" FontStyle="Italic" FontWeight="Bold"/>
         <Button x:Name="CreateAccountButton" Content="Create Account" HorizontalAlignment="Center" Height="47" Margin="0,515,0,0" VerticalAlignment="Top" Width="268" BorderBrush="#FFC242F3" Foreground="#FFC242F3" BorderThickness="4,4,4,4" Background="White" FontSize="24" FontFamily="Arial" FontStyle="Italic" FontWeight="Bold" Click="CreateAccountButton_Click"/>
         <Label x:Name="Label0" Content="Email " HorizontalAlignment="Left" Margin="366,201,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.524" Height="31" Width="67" FontSize="20" FontFamily="Arial" FontWeight="Bold" Background="#FFC242F3" FontStyle="Italic">
