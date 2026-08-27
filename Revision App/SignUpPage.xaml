@@ -6,7 +6,7 @@
     <Grid Background="White">
         <StackPanel Width="320" VerticalAlignment="Center" HorizontalAlignment="Center">
 
-            <!-- Header -->
+            
             <Label Content="Create Account" FontSize="32" FontFamily="Arial" FontWeight="Bold" 
                    FontStyle="Italic" Background="#FFC242F3" Foreground="White" 
                    HorizontalAlignment="Center" Margin="0,0,0,15">
@@ -15,27 +15,27 @@
                 </Label.Effect>
             </Label>
 
-            <!-- First Name -->
-            <Label Content="First Name" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2"/>
+            <!-- first name -->
+            <Label Content="First Name" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>
             <TextBox x:Name="FirstNameTextBox" Height="28" BorderBrush="#FFC242F3" Margin="0,0,0,10" FontFamily="Arial" FontSize="18"/>
 
-            <!-- Last Name -->
-            <Label Content="Last Name" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2"/>
+            <!-- lastnaem -->
+            <Label Content="Last Name" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>
             <TextBox x:Name="LastNameTextBox" Height="28" BorderBrush="#FFC242F3" Margin="0,0,0,10" FontFamily="Arial" FontSize="18"/>
 
-            <!-- Email -->
-            <Label Content="Email" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2"/>
+            <!-- email -->
+            <Label Content="Email" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>
             <TextBox x:Name="EmailTextBox" Height="28" BorderBrush="#FFC242F3" Margin="0,0,0,10" FontFamily="Arial" FontSize="18"/>
 
-            <!-- Create Password -->
-            <Label Content="Create Password" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2"/>
+            <!-- create password -->
+            <Label Content="Create Password" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>
             <PasswordBox x:Name="CreatePasswordBox" Height="28" BorderBrush="#FFC242F3" Margin="0,0,0,10" FontSize="18"/>
 
-            <!-- Confirm Password -->
-            <Label Content="Confirm Password" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2"/>
+            <!-- confirm password -->
+            <Label Content="Confirm Password" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>
             <PasswordBox x:Name="ConfirmPasswordBox" Height="28" BorderBrush="#FFC242F3" Margin="0,0,0,12" FontSize="18"/>
 
-            <!-- Clickable Purple Text -->
+            <!-- already have account -->
             <TextBlock Text="Already have an account?" 
                        Foreground="#FFC242F3" 
                        FontSize="14" 
@@ -44,9 +44,9 @@
                        HorizontalAlignment="Center" 
                        Cursor="Hand" 
                        Margin="0,0,0,15"
-                       MouseDown="AlreadyHaveAccount_MouseDown"/>
+                       MouseDown="AlreadyHaveAccount_MouseDown" FontFamily="Arial"/>
 
-            <!-- Sign Up Button at Bottom -->
+            <!-- Sign Up Button  -->
             <Button x:Name="SignUpButton" Content="Sign Up" Height="45" 
                     BorderBrush="#FFC242F3" Foreground="#FFC242F3" BorderThickness="3" 
                     Background="White" FontSize="22" FontFamily="Arial" FontStyle="Italic" 

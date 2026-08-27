@@ -22,13 +22,13 @@ namespace Revision_App
             InitializeComponent();
         }
 
-        // Navigates back to the log-in page when purple text is clicked
+        // takes you back to log in page when clicked
         private void AlreadyHaveAccount_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NavigationService.Navigate(new LogInPage());
         }
 
-        // Triggers when the Sign Up button is pressed
+        // Signs you up
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             // Registration logic will go here
