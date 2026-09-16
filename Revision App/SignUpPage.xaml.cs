@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Revision_App.Models;
+using Revision_App.Services;
 
 namespace Revision_App
 {
@@ -28,8 +30,9 @@ namespace Revision_App
         {
             NavigationService.Navigate(new LogInPage());
         }
+
         // sign in button click
-        private void SignUpButton_Click(object sender, RoutedEventArgs e)
+        private async void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             // takes all input from text boxes
             string firstName = FirstNameTextBox.Text.Trim();
@@ -37,6 +40,7 @@ namespace Revision_App
             string email = EmailTextBox.Text.Trim();
             string password = CreatePasswordBox.Password;
             string confirmPassword = ConfirmPasswordBox.Password;
+
             //checks if all fields are filled
             if (string.IsNullOrWhiteSpace(firstName) ||
                 string.IsNullOrWhiteSpace(lastName) ||
@@ -45,12 +49,14 @@ namespace Revision_App
                 MessageBox.Show("Please complete all fields.");
                 return;
             }
+
             // checks if email is valid
             if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
             {
                 MessageBox.Show("Please enter a valid email address.");
                 return;
             }
+
             // checks if password is valid
             if (password.Length < 8 ||
                 !Regex.IsMatch(password, @"[A-Z]") ||
@@ -61,16 +67,50 @@ namespace Revision_App
                     "a capital letter and a symbol.");
                 return;
             }
+
             // checks if passwords match
             if (password != confirmPassword)
             {
                 MessageBox.Show("Passwords do not match.");
                 return;
             }
-              
-           
 
-            
+            try
+            {
+                // ensures client connection is initialized
+                if (SupabaseService.Client == null)
+                {
+                    await SupabaseService.InitializeAsync();
+                }
+
+                // registers user in supabase auth
+                var authSession = await SupabaseService.Client!.Auth.SignUp(email, password);
+
+                if (authSession?.User == null)
+                {
+                    MessageBox.Show("Sign up failed. Please try again.");
+                    return;
+                }
+
+                // saves profile details into the custom database table
+                var newUser = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    XP = 0,
+                    AuthUserID = authSession.User.Id
+                };
+
+                await SupabaseService.Client.From<User>().Insert(newUser);
+
+                MessageBox.Show("Account created successfully!");
+                NavigationService.Navigate(new LogInPage());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error signing up: {ex.Message}");
+            }
         }
     }
 }
