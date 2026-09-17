@@ -9,14 +9,14 @@ namespace Revision_App.Services
 {
     public static class SupabaseService
     {
-        // Base project URL (removed the /rest/v1/ suffix)
+        // supabase url and api key
         private static readonly string SupabaseUrl =
             "https://mgwychahyxnixcafwebo.supabase.co";
 
         private static readonly string SupabaseKey =
             "sb_publishable_nkTGlKMUHrEEuqI3RK4H_w_Wmlcy2QO";
 
-        // Made Client nullable to resolve compiler warnings
+       
         public static Supabase.Client? Client { get; private set; }
 
         public static async Task InitializeAsync()
