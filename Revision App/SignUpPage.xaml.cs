@@ -127,15 +127,7 @@ namespace Revision_App
                     return;
                 }
 
-                // Create the profile linked to the authentication account
-                var newUser = new User
-                {
-                    FirstName = firstName,
-                    LastName = lastName,
-                    Email = email,
-                    XP = 0,
-                    AuthUserID = authUserId
-                };
+               
 
                 // Insert the profile into public.Users
                 await client.From<User>().Insert(newUser);
