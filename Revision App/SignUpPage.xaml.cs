@@ -129,11 +129,6 @@ namespace Revision_App
 
                
 
-                // Insert the profile into public.Users
-                await client.From<User>().Insert(newUser);
-
-                MessageBox.Show("Account created successfully!");
-
                 // Return to the login page
                 NavigationService.Navigate(new LogInPage());
             }
