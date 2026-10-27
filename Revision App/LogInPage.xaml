@@ -28,5 +28,6 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
+        <Label Content="CompRev" HorizontalAlignment="Left" Height="70" Margin="73,37,0,0" VerticalAlignment="Top" Width="209" FontFamily="Consolas" FontSize="50" Foreground="#FFC242F3"/>
     </Grid>
 </Page>

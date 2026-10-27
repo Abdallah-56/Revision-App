@@ -9,19 +9,19 @@ namespace Revision_App.Models
         [PrimaryKey("UserID", false)]
         public long UserID { get; set; }
 
+        [Column("AuthUserID")]
+        public string AuthUserID { get; set; } = string.Empty;
+
         [Column("FirstName")]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
         [Column("LastName")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Column("Email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Column("XP")]
         public long XP { get; set; }
-
-        [Column("AuthUserID")]
-        public string AuthUserID { get; set; }
     }
 }

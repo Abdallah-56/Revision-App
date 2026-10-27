@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="Images\" />
     <Folder Include="Views\" />
   </ItemGroup>
 
