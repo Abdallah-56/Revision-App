@@ -71,7 +71,7 @@
                            VerticalAlignment="Center"
                            HorizontalAlignment="Left"/>
 
-                <TextBlock Grid.Column="1"
+                <TextBlock x:Name="PageTitleText" Grid.Column="1"
                            Text="Dashboard"
                            FontSize="23"
                            FontWeight="Bold"
@@ -89,7 +89,7 @@
                             Margin="0,0,8,0"
                             Background="{StaticResource LightPurple}"
                             CornerRadius="8">
-                        <Image Source="Images/notification.png"
+                        <Image Source="pack://application:,,,/Images/NotificationBell.png"
                                Width="23" Height="23"
                                Stretch="Uniform"
                                ToolTip="Notifications"/>
@@ -98,7 +98,7 @@
                     <Border Width="36" Height="36"
                             Background="{StaticResource LightPurple}"
                             CornerRadius="18">
-                        <Image Source="Images/profile.png"
+                        <Image Source="pack://application:,,,/Images/profile.png"
                                Width="25" Height="25"
                                Stretch="Uniform"
                                ToolTip="Profile"/>
@@ -127,12 +127,14 @@
 
                     <StackPanel Grid.Row="0" Margin="0,18,0,0">
 
-                        <Button Style="{StaticResource NavButton}"
+                        <Button x:Name="HomeButton"
+                                Style="{StaticResource NavButton}"
+                                Click="HomeButton_Click"
                                 Background="{StaticResource LightPurple}"
                                 Foreground="{StaticResource DarkPurple}"
                                 FontWeight="Bold">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/home.png"
+                                <Image Source="pack://application:,,,/Images/home.png"
                                        Width="22" Height="22"
                                        Margin="0,0,10,0"
                                        Stretch="Uniform"/>
@@ -141,9 +143,11 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource NavButton}" Click="Button_Click">
+                        <Button x:Name="RevisionButton"
+                                Style="{StaticResource NavButton}"
+                                Click="RevisionButton_Click">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/revision.png"
+                                <Image Source="pack://application:,,,/Images/StudyHat.png"
                                        Width="22" Height="22"
                                        Margin="0,0,10,0"
                                        Stretch="Uniform"/>
@@ -154,7 +158,7 @@
 
                         <Button Style="{StaticResource NavButton}">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/progress.png"
+                                <Image Source="pack://application:,,,/Images/BarGraph.png"
                                        Width="22" Height="22"
                                        Margin="0,0,10,0"
                                        Stretch="Uniform"/>
@@ -165,7 +169,7 @@
 
                         <Button Style="{StaticResource NavButton}">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/settings.png"
+                                <Image Source="pack://application:,,,/Images/settings.png"
                                        Width="22" Height="22"
                                        Margin="0,0,10,0"
                                        Stretch="Uniform"/>
@@ -182,7 +186,7 @@
                             Padding="0,12,0,15">
                         <Button Style="{StaticResource NavButton}">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/logout.png"
+                                <Image Source="pack://application:,,,/Images/SignOut.png"
                                        Width="22" Height="22"
                                        Margin="0,0,10,0"
                                        Stretch="Uniform"/>
@@ -194,37 +198,38 @@
                 </Grid>
             </Border>
 
-            <!-- Main dashboard -->
-            <ScrollViewer Grid.Column="1"
-                          VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="24,22,24,24">
+            <!-- Main dashboard and revision views share the same layout -->
+            <Grid Grid.Column="1">
+                <ScrollViewer x:Name="HomeContent"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="24,22,24,24">
 
-                    <!-- Welcome message -->
-                    <TextBlock x:Name="WelcomeText"
+                        <!-- Welcome message -->
+                        <TextBlock x:Name="WelcomeText"
                                Text="Welcome"
                                FontSize="23"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextColour}"/>
 
-                    <TextBlock x:Name="StatusText"
+                        <TextBlock x:Name="StatusText"
                                Text="Your revision overview"
                                FontSize="13"
                                Foreground="{StaticResource MutedText}"
                                Margin="0,5,0,18"/>
 
-                    <!-- Statistics -->
-                    <UniformGrid Columns="3" Margin="-5,0,-5,12">
+                        <!-- Statistics -->
+                        <UniformGrid Columns="3" Margin="-5,0,-5,12">
 
-                        <Border Style="{StaticResource StatCard}">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Topics Studied"
+                            <Border Style="{StaticResource StatCard}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Topics Studied"
                                            FontSize="14"
                                            Foreground="{StaticResource MutedText}"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock x:Name="TopicsText"
+                                    <TextBlock x:Name="TopicsText"
                                            Text="—"
                                            FontFamily="Consolas"
                                            FontSize="24"
@@ -233,17 +238,17 @@
                                            HorizontalAlignment="Center"
                                            Margin="0,10,0,0"
                                            TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <Border Style="{StaticResource StatCard}">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="XP Earned"
+                            <Border Style="{StaticResource StatCard}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="XP Earned"
                                            FontSize="14"
                                            Foreground="{StaticResource MutedText}"
                                            HorizontalAlignment="Center"/>
 
-                                <TextBlock x:Name="XPText"
+                                    <TextBlock x:Name="XPText"
                                            Text="—"
                                            FontFamily="Consolas"
                                            FontSize="26"
@@ -251,19 +256,19 @@
                                            Foreground="{StaticResource Purple}"
                                            HorizontalAlignment="Center"
                                            Margin="0,10,0,0"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <Border Style="{StaticResource StatCard}">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Average Score"
+                            <Border Style="{StaticResource StatCard}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Average Score"
                                            FontSize="14"
                                            Foreground="{StaticResource MutedText}"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock x:Name="AverageScoreText"
+                                    <TextBlock x:Name="AverageScoreText"
                                            Text="—"
                                            FontFamily="Consolas"
                                            FontSize="24"
@@ -272,133 +277,133 @@
                                            HorizontalAlignment="Center"
                                            Margin="0,10,0,0"
                                            TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
 
-                    <!-- Recent activity and topics to revise -->
-                    <Grid Margin="-5,0,-5,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                        <!-- Recent activity and topics to revise -->
+                        <Grid Margin="-5,0,-5,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0"
+                            <Border Grid.Column="0"
                                 Style="{StaticResource SectionCard}"
                                 MinHeight="175">
-                            <StackPanel>
-                                <TextBlock Text="Recent Activity"
+                                <StackPanel>
+                                    <TextBlock Text="Recent Activity"
                                            FontSize="17"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource DarkPurple}"
                                            Margin="0,0,0,14"/>
 
-                                <TextBlock Text="Your recent revision sessions"
+                                    <TextBlock Text="Your recent revision sessions"
                                            FontSize="13"
                                            Foreground="{StaticResource MutedText}"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock Text="No activity recorded yet."
+                                    <TextBlock Text="No activity recorded yet."
                                            FontSize="13"
                                            Foreground="{StaticResource TextColour}"
                                            Margin="0,12,0,0"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <Border Grid.Column="1"
+                            <Border Grid.Column="1"
                                 Style="{StaticResource SectionCard}"
                                 MinHeight="175">
-                            <StackPanel>
-                                <TextBlock Text="Topics to Revise"
+                                <StackPanel>
+                                    <TextBlock Text="Topics to Revise"
                                            FontSize="17"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource DarkPurple}"
                                            Margin="0,0,0,14"/>
 
-                                <TextBlock Text="Your recommended revision topics"
+                                    <TextBlock Text="Your recommended revision topics"
                                            FontSize="13"
                                            Foreground="{StaticResource MutedText}"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock Text="Recommendations will appear here."
+                                    <TextBlock Text="Recommendations will appear here."
                                            FontSize="13"
                                            Foreground="{StaticResource TextColour}"
                                            Margin="0,12,0,0"
                                            TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
 
-                    <!-- Daily goal -->
-                    <Border Style="{StaticResource SectionCard}"
+                        <!-- Daily goal -->
+                        <Border Style="{StaticResource SectionCard}"
                             Margin="5,0,5,12">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="Daily Goal"
+                                    <TextBlock Text="Daily Goal"
                                            FontSize="17"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource DarkPurple}"/>
 
-                                <TextBlock Grid.Column="1"
+                                    <TextBlock Grid.Column="1"
                                            Text="0 / 30 minutes"
                                            FontFamily="Consolas"
                                            FontSize="12"
                                            Foreground="{StaticResource MutedText}"/>
-                            </Grid>
+                                </Grid>
 
-                            <Border Background="{StaticResource LightPurple}"
+                                <Border Background="{StaticResource LightPurple}"
                                     Height="10"
                                     CornerRadius="5"
                                     Margin="0,14,0,0">
-                                <Border Background="{StaticResource Purple}"
+                                    <Border Background="{StaticResource Purple}"
                                         HorizontalAlignment="Left"
                                         Width="0"
                                         CornerRadius="5"/>
-                            </Border>
+                                </Border>
 
-                            <TextBlock Text="Complete a revision session to work towards your daily goal."
+                                <TextBlock Text="Complete a revision session to work towards your daily goal."
                                        FontSize="12"
                                        Foreground="{StaticResource MutedText}"
                                        Margin="0,10,0,0"
                                        TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
+                            </StackPanel>
+                        </Border>
 
-                    <!-- Account details -->
-                    <Border Style="{StaticResource SectionCard}">
-                        <StackPanel>
-                            <TextBlock Text="Account Details"
+                        <!-- Account details -->
+                        <Border Style="{StaticResource SectionCard}">
+                            <StackPanel>
+                                <TextBlock Text="Account Details"
                                        FontSize="17"
                                        FontWeight="Bold"
                                        Foreground="{StaticResource DarkPurple}"
                                        Margin="0,0,0,12"/>
 
-                            <TextBlock Text="Name"
+                                <TextBlock Text="Name"
                                        FontSize="12"
                                        Foreground="{StaticResource MutedText}"/>
 
-                            <TextBlock x:Name="FullNameText"
+                                <TextBlock x:Name="FullNameText"
                                        Text="Loading..."
                                        FontSize="14"
                                        Margin="0,4,0,12"
                                        Foreground="{StaticResource TextColour}"/>
 
-                            <TextBlock Text="Email"
+                                <TextBlock Text="Email"
                                        FontSize="12"
                                        Foreground="{StaticResource MutedText}"/>
 
-                            <TextBlock x:Name="EmailText"
+                                <TextBlock x:Name="EmailText"
                                        Text="Loading..."
                                        FontSize="14"
                                        Margin="0,4,0,12"
                                        Foreground="{StaticResource TextColour}"/>
 
-                            <Button Content="Refresh Dashboard"
+                                <Button Content="Refresh Dashboard"
                                     Click="RefreshButton_Click"
                                     HorizontalAlignment="Left"
                                     Padding="16,9"
@@ -407,12 +412,29 @@
                                     BorderThickness="0"
                                     FontSize="13"
                                     Cursor="Hand"/>
-                        </StackPanel>
-                    </Border>
 
-                </StackPanel>
-            </ScrollViewer>
+                                <Button Content="Test Questions"
+                                    Click="TestQuestions_Click"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,12,0,0"
+                                    Padding="16,9"
+                                    Background="{StaticResource Purple}"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    FontSize="13"
+                                    Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Frame x:Name="RevisionContent"
+                       NavigationUIVisibility="Hidden"
+                                          Visibility="Collapsed"
+                                          Opacity="0"
+                                          IsHitTestVisible="False"/>
+            </Grid>
         </Grid>
     </Grid>
 </Page>
-

@@ -5,55 +5,58 @@ using System.Windows.Controls;
 
 namespace Revision_App
 {
-    public partial class RevisionTopicsPage : Page
+    public partial class RevisionTopicsPage : UserControl
     {
         public RevisionTopicsPage()
         {
             InitializeComponent();
         }
 
-        // Return to the dashboard.
-        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        // Filter topics using the search box.
+        private void SearchBox_TextChanged(
+            object sender, TextChangedEventArgs e)
         {
-            NavigationService?.Navigate(new DashboardPage());
-        }
+            if (TopicGrid == null || NoResultsText == null)
+                return;
 
-        // Search for topics by name.
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string searchText = SearchBox.Text.Trim().ToLower();
-            int visibleTopics = 0;
+            string search = SearchBox.Text.Trim();
+            int matches = 0;
 
-            foreach (Border topic in TopicGrid.Children)
+            foreach (Border card in TopicGrid.Children)
             {
-                string topicName = topic.Tag.ToString()!.ToLower();
+                string topic = card.Tag?.ToString() ?? "";
 
-                if (topicName.Contains(searchText))
-                {
-                    topic.Visibility = Visibility.Visible;
-                    visibleTopics++;
-                }
-                else
-                {
-                    topic.Visibility = Visibility.Collapsed;
-                }
+                bool visible = topic.Contains(
+                    search,
+                    StringComparison.OrdinalIgnoreCase);
+
+                card.Visibility = visible
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+
+                if (visible)
+                    matches++;
             }
 
-            // Show a message if no topics match.
-            NoResultsText.Visibility = visibleTopics == 0
+            NoResultsText.Visibility = matches == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
 
-        // Select a topic to revise.
-        private void StartRevision_Click(object sender, RoutedEventArgs e)
+        // Handle the selected revision topic.
+        private void StartRevision_Click(
+            object sender, RoutedEventArgs e)
         {
-            Button selectedButton = (Button)sender;
-            string selectedTopic = selectedButton.Tag.ToString()!;
+            if (sender is not Button button)
+                return;
+
+            string topic = button.Tag?.ToString()
+                ?? "Unknown topic";
 
             MessageBox.Show(
-                $"You selected: {selectedTopic}",
-                "Topic Selected",
+                $"You selected: {topic}\n\n" +
+                "Revision content is not added yet.",
+                "CompRev",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
