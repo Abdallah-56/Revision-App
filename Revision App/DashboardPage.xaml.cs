@@ -85,8 +85,7 @@ namespace Revision_App
                     ? "Welcome back"
                     : $"Welcome back, {profile.FirstName}";
 
-                // These statistics need quiz/progress data before
-                // they can be calculated accurately.
+                // display weak areas of study and average score, if available (not implemented yet)
                 TopicsText.Text = "Not available yet";
                 AverageScoreText.Text = "Not available yet";
 
@@ -102,6 +101,11 @@ namespace Revision_App
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new RevisionTopicsPage());
         }
     }
 }

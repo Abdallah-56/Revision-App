@@ -141,7 +141,7 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource NavButton}">
+                        <Button Style="{StaticResource NavButton}" Click="Button_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="Images/revision.png"
                                        Width="22" Height="22"
