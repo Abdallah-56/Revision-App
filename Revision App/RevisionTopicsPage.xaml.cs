@@ -1,64 +1,47 @@
-﻿
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Revision_App
 {
-    public partial class RevisionTopicsPage : UserControl
+    public partial class RevisionTopicsPage : Page
     {
         public RevisionTopicsPage()
         {
             InitializeComponent();
         }
 
-        // Filter topics using the search box.
-        private void SearchBox_TextChanged(
-            object sender, TextChangedEventArgs e)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (TopicGrid == null || NoResultsText == null)
                 return;
 
-            string search = SearchBox.Text.Trim();
-            int matches = 0;
+            string searchText = SearchBox.Text.Trim();
+            int visibleTopics = 0;
 
             foreach (Border card in TopicGrid.Children)
             {
-                string topic = card.Tag?.ToString() ?? "";
-
-                bool visible = topic.Contains(
-                    search,
+                string topicName = card.Tag?.ToString() ?? "";
+                bool matches = topicName.Contains(searchText,
                     StringComparison.OrdinalIgnoreCase);
 
-                card.Visibility = visible
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-
-                if (visible)
-                    matches++;
+                card.Visibility = matches ? Visibility.Visible : Visibility.Collapsed;
+                if (matches)
+                    visibleTopics++;
             }
 
-            NoResultsText.Visibility = matches == 0
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            NoResultsText.Visibility = visibleTopics == 0
+                ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        // Handle the selected revision topic.
-        private void StartRevision_Click(
-            object sender, RoutedEventArgs e)
+        private void StartRevision_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is not Button button)
+            if (sender is not Button button || button.Tag is not string topicName)
                 return;
 
-            string topic = button.Tag?.ToString()
-                ?? "Unknown topic";
-
-            MessageBox.Show(
-                $"You selected: {topic}\n\n" +
-                "Revision content is not added yet.",
-                "CompRev",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            // Use the existing dashboard Frame to show the quiz.
+            System.Windows.Navigation.NavigationService.GetNavigationService(this)?.Navigate(new QuizPage(topicName));
         }
     }
 }
+
