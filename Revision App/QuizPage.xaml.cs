@@ -13,10 +13,17 @@ namespace Revision_App
     {
         private readonly string topicName;
         private readonly QuestionService questionService = new QuestionService();
+        private readonly QuizAttemptService quizAttemptService = new QuizAttemptService();
+        private readonly List<QuizAnswer> submittedAnswers = new List<QuizAnswer>();
+
         private List<Question> questions = new List<Question>();
+        private Guid attemptID = Guid.NewGuid();
+        private int topicID;
         private int questionIndex = 0;
         private int correctCount = 0;
         private bool loaded = false;
+        private bool isSaving = false;
+        private bool isSaved = false;
 
         public QuizPage(string selectedTopic)
         {
@@ -35,7 +42,6 @@ namespace Revision_App
 
             try
             {
-                // Find the topic ID from Supabase rather than assuming a fixed ID.
                 List<Topic> topics = await questionService.GetTopicsAsync();
                 Topic? topic = topics.FirstOrDefault(t =>
                     string.Equals(t.TopicName?.Trim(), topicName.Trim(),
@@ -47,10 +53,10 @@ namespace Revision_App
                     return;
                 }
 
+                topicID = topic.TopicID;
                 List<Question> databaseQuestions =
-                    await questionService.GetQuestionsAsync(topic.TopicID);
+                    await questionService.GetQuestionsAsync(topicID);
 
-                // This first quiz page supports multiple-choice questions.
                 questions = databaseQuestions
                     .Where(q => string.Equals(q.QuestionType, "MultipleChoice",
                         StringComparison.OrdinalIgnoreCase))
@@ -100,6 +106,7 @@ namespace Revision_App
             FeedbackPanel.Visibility = Visibility.Collapsed;
             SubmitButton.Visibility = Visibility.Visible;
             NextButton.Visibility = Visibility.Collapsed;
+            NextButton.IsEnabled = true;
         }
 
         private void SubmitAnswer_Click(object sender, RoutedEventArgs e)
@@ -118,6 +125,12 @@ namespace Revision_App
             string answer = selected.Tag?.ToString() ?? "";
             string correctOption = question.CorrectOption.Trim().ToUpperInvariant();
             bool isCorrect = answer == correctOption;
+
+            submittedAnswers.Add(new QuizAnswer
+            {
+                QuestionID = question.QuestionID,
+                SelectedOption = answer
+            });
 
             if (isCorrect)
                 correctCount++;
@@ -141,17 +154,46 @@ namespace Revision_App
             NextButton.Visibility = Visibility.Visible;
         }
 
-        private void NextQuestion_Click(object sender, RoutedEventArgs e)
+        private async void NextQuestion_Click(object sender, RoutedEventArgs e)
         {
-            questionIndex++;
-
-            if (questionIndex >= questions.Count)
+            if (questionIndex == questions.Count - 1)
             {
-                ShowResults();
+                await FinishQuizAsync();
                 return;
             }
 
+            questionIndex++;
             ShowQuestion();
+        }
+
+        private async System.Threading.Tasks.Task FinishQuizAsync()
+        {
+            if (isSaving || isSaved)
+                return;
+
+            isSaving = true;
+            NextButton.IsEnabled = false;
+            NextButton.Content = "Saving...";
+
+            try
+            {
+                await quizAttemptService.SaveAttemptAsync(attemptID, topicID, submittedAnswers);
+                isSaved = true;
+                ShowResults();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "The quiz could not be saved. Your answers are still on this page. " +
+                    "Try saving again.\n\n" + ex.Message,
+                    "Save Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                NextButton.Content = "Retry Save";
+            }
+            finally
+            {
+                isSaving = false;
+                NextButton.IsEnabled = true;
+            }
         }
 
         private void ShowResults()
@@ -165,14 +207,19 @@ namespace Revision_App
 
             ResultScoreText.Text = $"{correctCount} / {questions.Count} ({percentage}%)";
             ResultDetailText.Text =
-                "These results are displayed locally for now. " +
-                "Saving scores and awarding XP will be added next.";
+                $"Results saved to Supabase. You earned {correctCount * 10} XP. " +
+                "Use Refresh Dashboard to view your updated total XP.";
         }
 
         private void RestartQuiz_Click(object sender, RoutedEventArgs e)
         {
+            attemptID = Guid.NewGuid();
+            submittedAnswers.Clear();
             questionIndex = 0;
             correctCount = 0;
+            isSaved = false;
+            isSaving = false;
+
             ResultsPanel.Visibility = Visibility.Collapsed;
             QuizPanel.Visibility = Visibility.Visible;
             ShowQuestion();
