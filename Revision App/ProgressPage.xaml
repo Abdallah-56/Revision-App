@@ -1,0 +1,173 @@
+﻿<Page x:Class="Revision_App.ProgressPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Progress"
+      Background="#F7F5FC"
+      FontFamily="Arial">
+    <Page.Resources>
+        <SolidColorBrush x:Key="Purple" Color="#7044A3"/>
+        <SolidColorBrush x:Key="DarkPurple" Color="#4E287C"/>
+        <SolidColorBrush x:Key="MutedText" Color="#756B85"/>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E2D8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,22,24,24">
+            <Grid Margin="5,0,5,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Progress Overview"
+                               FontSize="24" FontWeight="Bold"
+                               Foreground="{StaticResource DarkPurple}"/>
+                    <TextBlock x:Name="StatusText"
+                               Text="Loading your saved quiz results..."
+                               Foreground="{StaticResource MutedText}"
+                               Margin="0,5,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Refresh"
+                        Click="RefreshProgress_Click"
+                        Background="{StaticResource Purple}"
+                        Foreground="White" BorderThickness="0"
+                        Padding="17,9" Cursor="Hand"
+                        VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Four progress summary cards -->
+            <UniformGrid Columns="4" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Overall Progress" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedText}" FontSize="13"/>
+                        <TextBlock x:Name="OverallText" Text="0%" FontSize="27"
+                                   FontFamily="Consolas" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource Purple}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="XP Earned" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedText}" FontSize="13"/>
+                        <TextBlock x:Name="XPText" Text="0" FontSize="27"
+                                   FontFamily="Consolas" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource Purple}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Day Streak" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedText}" FontSize="13"/>
+                        <TextBlock x:Name="StreakText" Text="0" FontSize="27"
+                                   FontFamily="Consolas" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource Purple}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Quizzes Completed" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedText}" FontSize="13"/>
+                        <TextBlock x:Name="QuizzesText" Text="0" FontSize="27"
+                                   FontFamily="Consolas" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource Purple}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Recent quiz performance chart -->
+            <Border Style="{StaticResource Card}" Margin="5,0,5,15">
+                <StackPanel>
+                    <TextBlock Text="Quiz Performance Over Time" FontSize="18"
+                               FontWeight="Bold" Foreground="{StaticResource DarkPurple}"/>
+                    <TextBlock Text="Scores from your seven most recent completed quizzes"
+                               Margin="0,5,0,14"
+                               Foreground="{StaticResource MutedText}" FontSize="12"/>
+                    <TextBlock x:Name="NoHistoryText" Text="Complete a quiz to see your results here."
+                               Visibility="Collapsed" Foreground="{StaticResource MutedText}"
+                               Margin="0,25,0,25" HorizontalAlignment="Center"/>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="HistoryItems" MinWidth="500">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="8,2,8,0">
+                                        <TextBlock Text="{Binding PercentageLabel}"
+                                                   FontFamily="Consolas" FontSize="12"
+                                                   Foreground="{StaticResource Purple}"
+                                                   HorizontalAlignment="Center"/>
+                                        <Grid Height="145" Margin="0,6,0,5">
+                                            <Border Height="1" Background="#E2D8F0"
+                                                    VerticalAlignment="Bottom"/>
+                                            <Border Height="{Binding BarHeight}"
+                                                    Background="{StaticResource Purple}"
+                                                    CornerRadius="5,5,0,0"
+                                                    VerticalAlignment="Bottom"/>
+                                        </Grid>
+                                        <TextBlock Text="{Binding DateLabel}"
+                                                   FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding TopicLabel}" FontSize="10"
+                                                   Foreground="{StaticResource MutedText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding TopicLabel}"
+                                                   TextAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- Latest performance for each topic -->
+            <Border Style="{StaticResource Card}" Margin="5,0,5,5">
+                <StackPanel>
+                    <TextBlock Text="Progress per Topic" FontSize="18"
+                               FontWeight="Bold" Foreground="{StaticResource DarkPurple}"/>
+                    <TextBlock x:Name="TopicsSummaryText" Margin="0,5,0,12"
+                               Foreground="{StaticResource MutedText}" FontSize="12"/>
+                    <ItemsControl x:Name="TopicItems">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,10,0,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding TopicName}" FontSize="14"
+                                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Column="1" FontFamily="Consolas"
+                                                   Foreground="{StaticResource Purple}"
+                                                   Margin="10,0,0,0">
+                                            <Run Text="{Binding Percentage, Mode=OneWay}"/><Run Text="%"/>
+                                        </TextBlock>
+                                    </Grid>
+                                    <ProgressBar Value="{Binding Percentage}" Maximum="100"
+                                                 Height="10" Background="#EEE6F8"
+                                                 Foreground="{StaticResource Purple}"
+                                                 Margin="0,8,0,0"/>
+                                    <TextBlock Text="{Binding LastRevised}" FontSize="11"
+                                               Foreground="{StaticResource MutedText}"
+                                               Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

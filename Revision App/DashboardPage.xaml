@@ -156,7 +156,9 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource NavButton}">
+                        <Button x:Name="ProgressButton"
+                                Style="{StaticResource NavButton}"
+                                Click="ProgressButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="pack://application:,,,/Images/BarGraph.png"
                                        Width="22" Height="22"
@@ -431,9 +433,15 @@
 
                 <Frame x:Name="RevisionContent"
                        NavigationUIVisibility="Hidden"
-                                          Visibility="Collapsed"
-                                          Opacity="0"
-                                          IsHitTestVisible="False"/>
+                       Visibility="Collapsed"
+                       Opacity="0"
+                       IsHitTestVisible="False"/>
+
+                <Frame x:Name="ProgressContent"
+                       NavigationUIVisibility="Hidden"
+                       Visibility="Collapsed"
+                       Opacity="0"
+                       IsHitTestVisible="False"/>
             </Grid>
         </Grid>
     </Grid>

@@ -12,7 +12,8 @@ namespace Revision_App
 {
     public partial class DashboardPage : Page
     {
-        private bool showingRevision = false;
+        private enum DashboardSection { Home, Revision, Progress }
+        private DashboardSection activeSection = DashboardSection.Home;
 
         public DashboardPage()
         {
@@ -33,16 +34,22 @@ namespace Revision_App
             await LoadDashboardAsync();
         }
 
-        private void HomeButton_Click(
-            object sender, RoutedEventArgs e)
+        private async void HomeButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowSection(false);
+            ShowSection(DashboardSection.Home);
+            await LoadDashboardAsync();
         }
 
-        private void RevisionButton_Click(
-            object sender, RoutedEventArgs e)
+        private void RevisionButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowSection(true);
+            ShowSection(DashboardSection.Revision);
+        }
+
+        private void ProgressButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Navigate to a fresh page so the progress figures are reloaded.
+            ProgressContent.Navigate(new ProgressPage());
+            ShowSection(DashboardSection.Progress);
         }
 
         private async void TestQuestions_Click(
@@ -69,31 +76,20 @@ namespace Revision_App
             }
         }
 
-        // Switch the main content without reloading the whole page.
-        private void ShowSection(bool revision)
+        // Fade only the content area; the sidebar and header stay fixed.
+        private void ShowSection(DashboardSection section)
         {
-            if (showingRevision == revision)
+            if (activeSection == section)
                 return;
 
-            showingRevision = revision;
+            UIElement outgoing = GetSectionElement(activeSection);
+            UIElement incoming = GetSectionElement(section);
+            activeSection = section;
 
-            UIElement incoming = revision
-                ? RevisionContent
-                : HomeContent;
-
-            UIElement outgoing = revision
-                ? HomeContent
-                : RevisionContent;
-
-            incoming.BeginAnimation(
-                UIElement.OpacityProperty, null);
-
-            outgoing.BeginAnimation(
-                UIElement.OpacityProperty, null);
-
+            incoming.BeginAnimation(UIElement.OpacityProperty, null);
+            outgoing.BeginAnimation(UIElement.OpacityProperty, null);
             incoming.Opacity = 0;
             outgoing.Opacity = 1;
-
             incoming.Visibility = Visibility.Visible;
             incoming.IsHitTestVisible = true;
             outgoing.IsHitTestVisible = false;
@@ -101,56 +97,48 @@ namespace Revision_App
             Panel.SetZIndex(incoming, 1);
             Panel.SetZIndex(outgoing, 0);
 
-            // Fade between the two views.
-            var fadeIn = new DoubleAnimation(
-                0, 1, TimeSpan.FromMilliseconds(180));
-
-            var fadeOut = new DoubleAnimation(
-                1, 0, TimeSpan.FromMilliseconds(180));
-
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180));
+            var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(180));
             fadeOut.Completed += (s, e) =>
             {
-                if (showingRevision != revision)
+                if (activeSection != section)
                     return;
-
                 outgoing.Visibility = Visibility.Collapsed;
-
-                outgoing.BeginAnimation(
-                    UIElement.OpacityProperty, null);
-
+                outgoing.BeginAnimation(UIElement.OpacityProperty, null);
                 outgoing.Opacity = 0;
             };
 
-            incoming.BeginAnimation(
-                UIElement.OpacityProperty, fadeIn);
+            incoming.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+            outgoing.BeginAnimation(UIElement.OpacityProperty, fadeOut);
 
-            outgoing.BeginAnimation(
-                UIElement.OpacityProperty, fadeOut);
+            PageTitleText.Text = section switch
+            {
+                DashboardSection.Revision => "Revision",
+                DashboardSection.Progress => "Progress",
+                _ => "Dashboard"
+            };
 
-            // Update the page title and selected sidebar item.
-            PageTitleText.Text = revision
-                ? "Revision"
-                : "Dashboard";
+            UpdateNavigationButton(HomeButton, section == DashboardSection.Home);
+            UpdateNavigationButton(RevisionButton, section == DashboardSection.Revision);
+            UpdateNavigationButton(ProgressButton, section == DashboardSection.Progress);
+        }
 
-            var selected = (Brush)FindResource("LightPurple");
-            var selectedText = (Brush)FindResource("DarkPurple");
-            var normalText = (Brush)FindResource("TextColour");
+        private UIElement GetSectionElement(DashboardSection section)
+        {
+            return section switch
+            {
+                DashboardSection.Revision => RevisionContent,
+                DashboardSection.Progress => ProgressContent,
+                _ => HomeContent
+            };
+        }
 
-            HomeButton.Background = revision
-                ? Brushes.Transparent
-                : selected;
-
-            HomeButton.Foreground = revision
-                ? normalText
-                : selectedText;
-
-            RevisionButton.Background = revision
-                ? selected
-                : Brushes.Transparent;
-
-            RevisionButton.Foreground = revision
-                ? selectedText
-                : normalText;
+        private void UpdateNavigationButton(Button button, bool selected)
+        {
+            button.Background = selected
+                ? (Brush)FindResource("LightPurple") : Brushes.Transparent;
+            button.Foreground = (Brush)FindResource(selected ? "DarkPurple" : "TextColour");
+            button.FontWeight = selected ? FontWeights.Bold : FontWeights.Normal;
         }
 
         // Load the signed-in user's dashboard information.
@@ -203,9 +191,19 @@ namespace Revision_App
                 WelcomeText.Text =
                     $"Welcome back, {profile.FirstName}";
 
-                // These statistics will be added later.
-                TopicsText.Text = "Not available yet";
-                AverageScoreText.Text = "Not available yet";
+                // Quiz history drives these two dashboard statistics.
+                // If history cannot load, still show the signed-in user's profile and XP.
+                try
+                {
+                    var progress = await new ProgressService().GetProgressAsync();
+                    TopicsText.Text = progress.TopicsStudied.ToString();
+                    AverageScoreText.Text = progress.AverageScore + "%";
+                }
+                catch
+                {
+                    TopicsText.Text = "—";
+                    AverageScoreText.Text = "—";
+                }
 
                 StatusText.Text = "Your revision overview";
             }
