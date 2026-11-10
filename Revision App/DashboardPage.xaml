@@ -327,11 +327,56 @@
                                            Foreground="{StaticResource MutedText}"
                                            TextWrapping="Wrap"/>
 
-                                    <TextBlock Text="Recommendations will appear here."
+                                    <TextBlock x:Name="NoRecommendationsText"
+                                           Text="Loading recommendations..."
                                            FontSize="13"
-                                           Foreground="{StaticResource TextColour}"
+                                           Foreground="{StaticResource MutedText}"
                                            Margin="0,12,0,0"
                                            TextWrapping="Wrap"/>
+
+                                    <ItemsControl x:Name="RecommendationItems">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="#E2D8F0"
+                                                    BorderThickness="0,0,0,1"
+                                                    Padding="0,9,0,11">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding TopicName}"
+                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding PriorityLabel}"
+                                                                   FontSize="11"
+                                                                   Foreground="{StaticResource Purple}"
+                                                                   Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding RetentionLabel}"
+                                                                   FontSize="11"
+                                                                   Foreground="{StaticResource MutedText}"
+                                                                   Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding Reason}"
+                                                                   FontSize="11"
+                                                                   Foreground="{StaticResource MutedText}"
+                                                                   Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                        </StackPanel>
+                                                        <Button Grid.Column="1" Content="Revise"
+                                                            Tag="{Binding TopicName}"
+                                                            Click="StartRecommendedQuiz_Click"
+                                                            VerticalAlignment="Center"
+                                                            Margin="12,0,0,0"
+                                                            Padding="9,7"
+                                                            Background="{StaticResource Purple}"
+                                                            Foreground="White"
+                                                            BorderThickness="0"
+                                                            Cursor="Hand"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </Border>
                         </Grid>

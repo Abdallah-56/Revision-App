@@ -52,6 +52,15 @@ namespace Revision_App
             ShowSection(DashboardSection.Progress);
         }
 
+        private void StartRecommendedQuiz_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string topicName)
+            {
+                RevisionContent.Navigate(new QuizPage(topicName));
+                ShowSection(DashboardSection.Revision);
+            }
+        }
+
         private async void TestQuestions_Click(
             object sender, RoutedEventArgs e)
         {
@@ -191,18 +200,29 @@ namespace Revision_App
                 WelcomeText.Text =
                     $"Welcome back, {profile.FirstName}";
 
-                // Quiz history drives these two dashboard statistics.
-                // If history cannot load, still show the signed-in user's profile and XP.
+                // Use the same progress snapshot for both statistics and suggestions.
                 try
                 {
                     var progress = await new ProgressService().GetProgressAsync();
                     TopicsText.Text = progress.TopicsStudied.ToString();
                     AverageScoreText.Text = progress.AverageScore + "%";
+
+                    var recommendations = new AdaptiveRevisionService()
+                        .GetRecommendations(progress, 3);
+                    RecommendationItems.ItemsSource = recommendations;
+                    NoRecommendationsText.Text = recommendations.Count == 0
+                        ? "No revision topics are available."
+                        : "";
+                    NoRecommendationsText.Visibility = recommendations.Count == 0
+                        ? Visibility.Visible : Visibility.Collapsed;
                 }
                 catch
                 {
                     TopicsText.Text = "—";
                     AverageScoreText.Text = "—";
+                    RecommendationItems.ItemsSource = null;
+                    NoRecommendationsText.Text = "Recommendations are unavailable. Please refresh.";
+                    NoRecommendationsText.Visibility = Visibility.Visible;
                 }
 
                 StatusText.Text = "Your revision overview";

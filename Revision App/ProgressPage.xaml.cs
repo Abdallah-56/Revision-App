@@ -43,6 +43,11 @@ namespace Revision_App
                 QuizzesText.Text = progress.QuizzesCompleted.ToString();
                 TopicItems.ItemsSource = progress.Topics;
                 HistoryItems.ItemsSource = progress.History;
+                var suggestions = new AdaptiveRevisionService()
+                    .GetRecommendations(progress, 3);
+                RecommendedTopicItems.ItemsSource = suggestions;
+                NoRecommendedTopicsText.Visibility = suggestions.Count == 0
+                    ? Visibility.Visible : Visibility.Collapsed;
                 NoHistoryText.Visibility = progress.History.Count == 0
                     ? Visibility.Visible : Visibility.Collapsed;
 

@@ -8,7 +8,11 @@ namespace Revision_App.Services
 {
     public class TopicProgressItem
     {
+        public int TopicID { get; set; }
         public string TopicName { get; set; } = "";
+        public bool HasStudied { get; set; }
+        public int LatestScore { get; set; }
+        public int DaysSinceRevision { get; set; }
         // The progress bar shows estimated retention, not a modified quiz score.
         public int Percentage { get; set; }
         public string ScoreComparison { get; set; } = "";
@@ -133,7 +137,9 @@ namespace Revision_App.Services
                 {
                     snapshot.Topics.Add(new TopicProgressItem
                     {
+                        TopicID = topic.TopicID,
                         TopicName = topic.TopicName,
+                        HasStudied = false,
                         Percentage = 0,
                         ScoreComparison = "Complete a quiz to begin tracking this topic.",
                         LastRevised = "Not studied yet"
@@ -145,7 +151,11 @@ namespace Revision_App.Services
                 int retained = KnowledgeDecayCalculator.Calculate(latestScore, lastRevisedDate, todayUtc);
                 snapshot.Topics.Add(new TopicProgressItem
                 {
+                    TopicID = topic.TopicID,
                     TopicName = topic.TopicName,
+                    HasStudied = true,
+                    LatestScore = latestScore,
+                    DaysSinceRevision = days,
                     Percentage = retained,
                     ScoreComparison = $"Latest quiz: {latestScore}%  ·  Estimated retention: {retained}%",
                     LastRevised = $"Last revised: {lastRevisedDate:dd MMM yyyy} (UTC)  ·  {days} day(s) ago"
