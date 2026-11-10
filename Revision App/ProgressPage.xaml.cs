@@ -52,7 +52,7 @@ namespace Revision_App
 
                 StatusText.Text = progress.QuizzesCompleted == 0
                     ? "No saved quizzes yet. Complete a quiz to start tracking progress."
-                    : "Your progress is calculated from saved quiz results.";
+                    : "Quiz scores are saved; knowledge retention is estimated from your last revision date.";
             }
             catch (Exception ex)
             {

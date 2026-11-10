@@ -9,7 +9,9 @@ namespace Revision_App.Services
     public class TopicProgressItem
     {
         public string TopicName { get; set; } = "";
+        // The progress bar shows estimated retention, not a modified quiz score.
         public int Percentage { get; set; }
+        public string ScoreComparison { get; set; } = "";
         public string LastRevised { get; set; } = "Not studied yet";
     }
 
@@ -64,14 +66,21 @@ namespace Revision_App.Services
             var resultsResponse = await client.From<QuizResult>()
                 .Where(r => r.UserID == user.UserID)
                 .Get();
+            var progressResponse = await client.From<TopicProgressRecord>()
+                .Where(p => p.UserID == user.UserID)
+                .Get();
 
             var topics = topicsResponse.Models.ToList();
             var questionTopics = questionsResponse.Models
                 .ToDictionary(q => q.QuestionID, q => q.TopicID);
             var results = resultsResponse.Models.ToList();
+            var storedProgress = progressResponse.Models
+                .Where(p => p.TopicID != 0 && p.ProgressPercentage.HasValue)
+                .GroupBy(p => p.TopicID)
+                .ToDictionary(group => group.Key,
+                    group => group.OrderByDescending(p => p.LastRevised).First());
 
-            // Each saved quiz has one AttemptID shared by all its answers.
-            // Ignore legacy rows without an AttemptID: they cannot be grouped reliably.
+            // Each quiz attempt has one AttemptID shared by all its answers.
             var attempts = results
                 .Where(r => r.AttemptID.HasValue && questionTopics.ContainsKey(r.QuestionID))
                 .GroupBy(r => r.AttemptID!.Value)
@@ -99,6 +108,7 @@ namespace Revision_App.Services
                                     attempts.Sum(a => a.Total), MidpointRounding.AwayFromZero)
             };
 
+            DateTime todayUtc = DateTime.UtcNow.Date;
             foreach (var topic in topics.OrderBy(t => t.TopicName))
             {
                 var latest = attempts
@@ -106,23 +116,50 @@ namespace Revision_App.Services
                     .OrderByDescending(a => a.CompletedAt)
                     .FirstOrDefault();
 
+                int latestScore;
+                DateTime lastRevisedDate;
+                if (storedProgress.TryGetValue(topic.TopicID, out var saved))
+                {
+                    latestScore = (int)Math.Clamp(saved.ProgressPercentage!.Value, 0L, 100L);
+                    lastRevisedDate = saved.LastRevised.Date;
+                }
+                else if (latest != null)
+                {
+                    // Fallback for older quiz attempts that predate the Progress table.
+                    latestScore = latest.Percentage;
+                    lastRevisedDate = latest.CompletedAt.UtcDateTime.Date;
+                }
+                else
+                {
+                    snapshot.Topics.Add(new TopicProgressItem
+                    {
+                        TopicName = topic.TopicName,
+                        Percentage = 0,
+                        ScoreComparison = "Complete a quiz to begin tracking this topic.",
+                        LastRevised = "Not studied yet"
+                    });
+                    continue;
+                }
+
+                int days = KnowledgeDecayCalculator.DaysSinceRevision(lastRevisedDate, todayUtc);
+                int retained = KnowledgeDecayCalculator.Calculate(latestScore, lastRevisedDate, todayUtc);
                 snapshot.Topics.Add(new TopicProgressItem
                 {
                     TopicName = topic.TopicName,
-                    Percentage = latest?.Percentage ?? 0,
-                    LastRevised = latest == null
-                        ? "Not studied yet"
-                        : "Last revised: " + latest.CompletedAt.ToLocalTime().ToString("dd MMM yyyy")
+                    Percentage = retained,
+                    ScoreComparison = $"Latest quiz: {latestScore}%  ·  Estimated retention: {retained}%",
+                    LastRevised = $"Last revised: {lastRevisedDate:dd MMM yyyy} (UTC)  ·  {days} day(s) ago"
                 });
             }
 
-            // Unstudied topics count as 0% until a quiz has been completed.
+            // Unstudied topics count as 0; studied topics show estimated retention.
             snapshot.OverallProgress = topics.Count == 0 ? 0 :
                 (int)Math.Round(snapshot.Topics.Sum(t => t.Percentage) /
                                 (double)topics.Count, MidpointRounding.AwayFromZero);
 
             snapshot.DayStreak = CalculateStreak(attempts.Select(a => a.CompletedAt.ToLocalTime().Date));
 
+            // The graph always shows original quiz scores, without decay.
             var topicNames = topics.ToDictionary(t => t.TopicID, t => t.TopicName);
             snapshot.History = attempts
                 .OrderByDescending(a => a.CompletedAt)

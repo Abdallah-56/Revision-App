@@ -46,7 +46,7 @@
             <UniformGrid Columns="4" Margin="0,0,0,16">
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Overall Progress" TextWrapping="Wrap"
+                        <TextBlock Text="Overall Retention" TextWrapping="Wrap"
                                    Foreground="{StaticResource MutedText}" FontSize="13"/>
                         <TextBlock x:Name="OverallText" Text="0%" FontSize="27"
                                    FontFamily="Consolas" FontWeight="Bold"
@@ -134,8 +134,14 @@
             <!-- Latest performance for each topic -->
             <Border Style="{StaticResource Card}" Margin="5,0,5,5">
                 <StackPanel>
-                    <TextBlock Text="Progress per Topic" FontSize="18"
+                    <TextBlock Text="Estimated Retention per Topic" FontSize="18"
                                FontWeight="Bold" Foreground="{StaticResource DarkPurple}"/>
+                    <TextBlock Text="Retention estimate: 98% of the previous day for every day without revision."
+                               Foreground="{StaticResource MutedText}"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,5,0,3"/>
+                    <TextBlock Text="This is an estimate; original quiz scores and XP remain unchanged."
+                               Foreground="{StaticResource MutedText}"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
                     <TextBlock x:Name="TopicsSummaryText" Margin="0,5,0,12"
                                Foreground="{StaticResource MutedText}" FontSize="12"/>
                     <ItemsControl x:Name="TopicItems">
@@ -159,9 +165,12 @@
                                                  Height="10" Background="#EEE6F8"
                                                  Foreground="{StaticResource Purple}"
                                                  Margin="0,8,0,0"/>
+                                    <TextBlock Text="{Binding ScoreComparison}" FontSize="12"
+                                               Foreground="{StaticResource MutedText}"
+                                               Margin="0,6,0,0" TextWrapping="Wrap"/>
                                     <TextBlock Text="{Binding LastRevised}" FontSize="11"
                                                Foreground="{StaticResource MutedText}"
-                                               Margin="0,6,0,0"/>
+                                               Margin="0,4,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
