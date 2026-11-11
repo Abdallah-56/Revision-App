@@ -7,13 +7,8 @@
         <StackPanel Width="320" VerticalAlignment="Center" HorizontalAlignment="Center">
 
             
-            <Label Content="Create Account" FontSize="32" FontFamily="Arial" FontWeight="Bold" 
-                   FontStyle="Italic" Background="#FFC242F3" Foreground="White" 
-                   HorizontalAlignment="Center" Margin="0,0,0,15">
-                <Label.Effect>
-                    <DropShadowEffect/>
-                </Label.Effect>
-            </Label>
+            <Label Content="Create Account" FontSize="32" FontFamily="Consolas" Foreground="#FFC242F3" 
+                   HorizontalAlignment="Center" Margin="0,0,0,15"/>
 
             <!-- first name -->
             <Label Content="First Name" FontSize="14" FontWeight="Bold" Foreground="#FFC242F3" Padding="0,2,0,2" FontFamily="Arial"/>

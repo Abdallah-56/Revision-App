@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
+using Supabase.Gotrue;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Navigation;
 using Revision_App.Models;
 using Revision_App.Services;
 
@@ -12,8 +15,10 @@ namespace Revision_App
 {
     public partial class DashboardPage : Page
     {
-        private enum DashboardSection { Home, Revision, Progress }
+        private enum DashboardSection { Home, Revision, Progress, Settings }
         private DashboardSection activeSection = DashboardSection.Home;
+        private List<RevisionRecommendation> currentRecommendations = new();
+        private bool isLoggingOut;
 
         public DashboardPage()
         {
@@ -50,6 +55,120 @@ namespace Revision_App
             // Navigate to a fresh page so the progress figures are reloaded.
             ProgressContent.Navigate(new ProgressPage());
             ShowSection(DashboardSection.Progress);
+        }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenSettings();
+        }
+
+        private void AccountButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenSettings();
+        }
+
+        private void OpenSettings()
+        {
+            var page = new SettingsPage();
+            page.LogOutRequested += SettingsPage_LogOutRequested;
+            SettingsContent.Navigate(page);
+            ShowSection(DashboardSection.Settings);
+        }
+
+        private void NotificationsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var preferences = ApplicationPreferences.LoadForCurrentUser();
+                if (!preferences.ShowRevisionReminders)
+                {
+                    MessageBox.Show("Revision reminders are disabled. Enable them in Settings.",
+                        "Notifications", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                if (currentRecommendations.Count == 0)
+                {
+                    MessageBox.Show("No recommendations are available yet. Try refreshing the dashboard.",
+                        "Notifications", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                string items = string.Join("\n", currentRecommendations.Select(r =>
+                    $"• {r.TopicName}: {r.Reason}"));
+                var result = MessageBox.Show(
+                    "Your revision reminders:\n\n" + items +
+                    "\n\nOpen your Progress page for more information?",
+                    "Revision Reminders", MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+                if (result == MessageBoxResult.Yes)
+                    ProgressButton_Click(sender, e);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to load reminders: " + ex.Message,
+                    "Notifications", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private async void SettingsPage_LogOutRequested(object? sender, EventArgs e)
+        {
+            await LogOutAsync();
+        }
+
+        private async void LogOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            await LogOutAsync();
+        }
+
+        private async Task LogOutAsync()
+        {
+            if (isLoggingOut)
+                return;
+
+            if (MessageBox.Show("Log out of CompRev?", "Confirm Log Out",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            isLoggingOut = true;
+            LogOutButton.IsEnabled = false;
+            try
+            {
+                var client = SupabaseService.Client
+                    ?? throw new InvalidOperationException("Supabase is not initialised.");
+                var navigation = NavigationService
+                    ?? throw new InvalidOperationException("Dashboard navigation is unavailable.");
+
+                // Only sign out of this device, not the user's other devices.
+                await client.Auth.SignOut(Constants.SignOutScope.Local);
+
+                // Remove authenticated pages after the login page has loaded.
+                NavigatedEventHandler? onNavigated = null;
+                onNavigated = (source, args) =>
+                {
+                    if (args.Content is not LogInPage)
+                        return;
+
+                    navigation.Navigated -= onNavigated!;
+                    while (navigation.RemoveBackEntry() != null) { }
+                };
+                navigation.Navigated += onNavigated;
+                if (!navigation.Navigate(new LogInPage()))
+                {
+                    navigation.Navigated -= onNavigated;
+                    throw new InvalidOperationException("Could not open the login page.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Could not finish logging out: " + ex.Message,
+                    "Log Out", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                isLoggingOut = false;
+                LogOutButton.IsEnabled = true;
+            }
         }
 
         private void StartRecommendedQuiz_Click(object sender, RoutedEventArgs e)
@@ -124,12 +243,14 @@ namespace Revision_App
             {
                 DashboardSection.Revision => "Revision",
                 DashboardSection.Progress => "Progress",
+                DashboardSection.Settings => "Settings",
                 _ => "Dashboard"
             };
 
             UpdateNavigationButton(HomeButton, section == DashboardSection.Home);
             UpdateNavigationButton(RevisionButton, section == DashboardSection.Revision);
             UpdateNavigationButton(ProgressButton, section == DashboardSection.Progress);
+            UpdateNavigationButton(SettingsButton, section == DashboardSection.Settings);
         }
 
         private UIElement GetSectionElement(DashboardSection section)
@@ -138,6 +259,7 @@ namespace Revision_App
             {
                 DashboardSection.Revision => RevisionContent,
                 DashboardSection.Progress => ProgressContent,
+                DashboardSection.Settings => SettingsContent,
                 _ => HomeContent
             };
         }
@@ -148,6 +270,25 @@ namespace Revision_App
                 ? (Brush)FindResource("LightPurple") : Brushes.Transparent;
             button.Foreground = (Brush)FindResource(selected ? "DarkPurple" : "TextColour");
             button.FontWeight = selected ? FontWeights.Bold : FontWeights.Normal;
+        }
+
+        private void ApplyDailyGoal(int completedToday)
+        {
+            try
+            {
+                var preferences = ApplicationPreferences.LoadForCurrentUser();
+                int goal = preferences.DailyQuizGoal;
+                DailyGoalProgress.Maximum = goal;
+                DailyGoalProgress.Value = Math.Min(goal, completedToday);
+                DailyGoalCountText.Text = $"{completedToday} / {goal} quizzes";
+                DailyGoalDetailText.Text = completedToday >= goal
+                    ? "Today's quiz goal completed."
+                    : "Complete quizzes today to reach your goal. Change the target in Settings.";
+            }
+            catch
+            {
+                DailyGoalDetailText.Text = "Unable to load today's quiz goal.";
+            }
         }
 
         // Load the signed-in user's dashboard information.
@@ -178,7 +319,7 @@ namespace Revision_App
                 }
 
                 var response = await client
-                    .From<User>()
+                    .From<Models.User>()
                     .Where(user => user.AuthUserID == authUser.Id)
                     .Get();
 
@@ -210,6 +351,8 @@ namespace Revision_App
                     var recommendations = new AdaptiveRevisionService()
                         .GetRecommendations(progress, 3);
                     RecommendationItems.ItemsSource = recommendations;
+                    currentRecommendations = recommendations;
+                    ApplyDailyGoal(progress.QuizzesToday);
                     NoRecommendationsText.Text = recommendations.Count == 0
                         ? "No revision topics are available."
                         : "";
@@ -221,8 +364,24 @@ namespace Revision_App
                     TopicsText.Text = "—";
                     AverageScoreText.Text = "—";
                     RecommendationItems.ItemsSource = null;
+                    currentRecommendations.Clear();
                     NoRecommendationsText.Text = "Recommendations are unavailable. Please refresh.";
                     NoRecommendationsText.Visibility = Visibility.Visible;
+                }
+
+                try
+                {
+                    var activity = await new RecentActivityService().GetRecentActivityAsync(4);
+                    RecentActivityItems.ItemsSource = activity;
+                    NoActivityText.Text = "No completed quizzes yet.";
+                    NoActivityText.Visibility = activity.Count == 0
+                        ? Visibility.Visible : Visibility.Collapsed;
+                }
+                catch
+                {
+                    RecentActivityItems.ItemsSource = null;
+                    NoActivityText.Text = "Recent activity is unavailable. Please refresh.";
+                    NoActivityText.Visibility = Visibility.Visible;
                 }
 
                 StatusText.Text = "Your revision overview";

@@ -33,6 +33,7 @@ namespace Revision_App.Services
         public long XP { get; set; }
         public int DayStreak { get; set; }
         public int QuizzesCompleted { get; set; }
+        public int QuizzesToday { get; set; }
         public int TopicsStudied { get; set; }
         public int TotalTopics { get; set; }
         public int AverageScore { get; set; }
@@ -106,6 +107,7 @@ namespace Revision_App.Services
                 XP = user.XP,
                 TotalTopics = topics.Count,
                 QuizzesCompleted = attempts.Count,
+                QuizzesToday = attempts.Count(a => a.CompletedAt.ToLocalTime().Date == DateTime.Today),
                 TopicsStudied = attempts.Select(a => a.TopicID).Distinct().Count(),
                 AverageScore = attempts.Count == 0 ? 0 :
                     (int)Math.Round(attempts.Sum(a => a.Correct) * 100.0 /
